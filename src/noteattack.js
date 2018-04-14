@@ -21,7 +21,6 @@ const initMidi = actions => {
     }
     console.log('input midi device', inputDevice);
     access.onstatechange = e => {
-      // Print information about the (dis)connected MIDI controller
       console.log(e, e.port.name, e.port.manufacturer, e.port.state);
       console.log(inputDevice);
     };
@@ -45,12 +44,11 @@ const init = actions => {
 
   document.addEventListener('keydown', e => {
     const keyName = e.key;
-    console.log(keyName);
     actions.keyEvent('keydown', keyName);
   });
 
-  actions.newGame = () => {
-    engine.game = createGame();
+  actions.newGame = mode => {
+    engine.game = createGame(mode);
     const index = 0;
     showNote(actions, engine.game.notes, index);
   };
