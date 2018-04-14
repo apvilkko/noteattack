@@ -1,8 +1,6 @@
 import NOTES from './notes';
-import {CHORD_TYPES, getChord, CHORD_DISPLAY} from './chord';
-
-const getRandom = arr => arr[Math.floor(Math.random() * arr.length)];
-const randomRange = (min, max) => (Math.random() * (max - min) + min);
+import {getChord, CHORD_DISPLAY, getRandomChordType} from './chord';
+import {getRandom, randomRange} from './random';
 
 const STEP_MS = 50;
 
@@ -37,7 +35,7 @@ export const showNote = (actions, notes, index) => {
 };
 
 const singleDelayRange = [0.8, 2.5];
-const chordDelayRange = [1.2, 3.2];
+const chordDelayRange = [1.6, 3.6];
 
 const maybeSwitchAccidental = note => {
   if (note.indexOf('#') > -1) {
@@ -47,10 +45,10 @@ const maybeSwitchAccidental = note => {
       if (newIndex >= 12) {
         newIndex = 0;
       }
-      const newNote = `${NOTES[newIndex]}b`;
+      const newNote = `${NOTES[newIndex]}♭`;
       return newNote;
     }
-    return note;
+    return note.replace('#', '♯');
   }
   return note;
 };
@@ -67,7 +65,7 @@ export default mode => {
       notes: [],
     };
     const root = getRandom(NOTES);
-    const chordType = getRandom(CHORD_TYPES);
+    const chordType = getRandomChordType();
     const chord = getChord(chordType, root);
     item.display = `${maybeSwitchAccidental(root)}${chordMode ?
         CHORD_DISPLAY[chordType] : ''}`;

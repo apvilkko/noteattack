@@ -1,4 +1,5 @@
 import NOTES from './notes';
+import {getRandom} from './random';
 
 const MAJOR = 'MAJOR';
 const MINOR = 'MINOR';
@@ -34,4 +35,13 @@ export const getChord = (chordType, root) => {
   const index = NOTES.findIndex(x => x === root);
   const chord = CHORDS[chordType];
   return [root, arr[index + chord[1]], arr[index + chord[2]]];
+};
+
+export const getRandomChordType = () => {
+  if (Math.random() > 0.3) {
+    return getRandom([MAJOR, MINOR]);
+  } else if (Math.random() > 0.4) {
+    return getRandom([SUS2, SUS4]);
+  }
+  return getRandom([DIM, AUG]);
 };
