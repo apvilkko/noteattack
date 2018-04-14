@@ -3,6 +3,7 @@ port module Main exposing (main)
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (class)
+import Time exposing (Time, second)
 
 
 debugMessages : String -> Html Msg
@@ -12,16 +13,62 @@ debugMessages msg =
 
 type alias Model =
     { debugMessage : String
+    , gameOn : Bool
+    , shownNote : String
+    , score : Int
+    , scored : Bool
+    , shownIndex : Int
+    , inCountdown : Bool
+    , countdown : Int
+    , wrong : Bool
+    }
+
+
+defaultModel : Model
+defaultModel =
+    { debugMessage = ""
+    , gameOn = False
+    , shownNote = ""
+    , score = 0
+    , scored = False
+    , shownIndex = 0
+    , inCountdown = False
+    , countdown = 0
+    , wrong = False
+    }
+
+
+type alias KeyEvent =
+    { event : String
+    , key : String
+    }
+
+
+type alias NotePressEvent =
+    { note : Int
+    , scaleNote : String
+    }
+
+
+type alias ChangeNoteEvent =
+    { note : String
+    , index : Int
     }
 
 
 type Msg
     = SetDebugMessage String
+    | StartGame
+    | ReceiveEndGame String
+    | ReceiveKeyEvent KeyEvent
+    | ReceiveChangeNote ChangeNoteEvent
+    | ReceiveNotePressEvent NotePressEvent
+    | Tick Time
 
 
-defaultModel : Model
-defaultModel =
-    { debugMessage = "" }
+getSecond : List a -> Maybe a
+getSecond list =
+    List.head (List.drop 1 list)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -30,18 +77,93 @@ update msg model =
         SetDebugMessage msg ->
             ( { model | debugMessage = msg }, Cmd.none )
 
+        ReceiveChangeNote note ->
+            ( { model | shownNote = note.note, wrong = False, shownIndex = note.index, scored = False }, Cmd.none )
+
+        StartGame ->
+            ( { model | inCountdown = True, countdown = 3, score = 0, wrong = False, shownIndex = 0 }, Cmd.none )
+
+        ReceiveEndGame msg ->
+            ( { model | gameOn = False }, Cmd.none )
+
+        ReceiveKeyEvent keyEvent ->
+            case keyEvent.event of
+                "keydown" ->
+                    case keyEvent.key of
+                        "Escape" ->
+                            ( { model | gameOn = False }, Cmd.none )
+
+                        _ ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ReceiveNotePressEvent event ->
+            if model.gameOn && not model.scored && event.scaleNote == model.shownNote then
+                ( { model | score = model.score + 1, scored = True }, Cmd.none )
+            else
+                ( { model | scored = True, wrong = True }, Cmd.none )
+
+        Tick _ ->
+            if model.inCountdown then
+                if model.countdown > 1 then
+                    ( { model | countdown = model.countdown - 1 }, Cmd.none )
+                else
+                    ( { model | inCountdown = False, gameOn = True }, newGame () )
+            else
+                ( model, Cmd.none )
+
 
 port debug : (String -> msg) -> Sub msg
 
 
+port endGame : (String -> msg) -> Sub msg
+
+
+port newGame : () -> Cmd msg
+
+
+port keyEvent : (KeyEvent -> msg) -> Sub msg
+
+
+port changeNote : (ChangeNoteEvent -> msg) -> Sub msg
+
+
+port notePressed : (NotePressEvent -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    debug SetDebugMessage
+    Sub.batch
+        [ debug SetDebugMessage
+        , keyEvent ReceiveKeyEvent
+        , changeNote ReceiveChangeNote
+        , endGame ReceiveEndGame
+        , notePressed ReceiveNotePressEvent
+        , Time.every second Tick
+        ]
 
 
 init : ( Model, Cmd Msg )
 init =
     ( defaultModel, Cmd.none )
+
+
+score : Int -> Html Msg
+score value =
+    div [ class "score" ] [ text ("Score: " ++ (toString value)) ]
+
+
+progress : Html Msg
+progress =
+    div [ class "progress-container" ]
+        [ div [ class "progress" ]
+            [ text "" ]
+        , div
+            [ class "progress-inner" ]
+            [ text "" ]
+        ]
 
 
 main : Program Never Model Msg
@@ -57,8 +179,29 @@ main =
 view : Model -> Html Msg
 view model =
     div []
-        -- [ button [ onClick Decrement ] [ text "-" ]
-        -- , div [] [ text (toString model) ]
-        [ button [ onClick (SetDebugMessage "asdf") ] [ text "+" ]
-        , debugMessages model.debugMessage
-        ]
+        (if model.gameOn then
+            [ div []
+                [ text ("#" ++ (toString (model.shownIndex + 1))) ]
+            , div
+                [ class "shown-note" ]
+                [ text model.shownNote ]
+            , score model.score
+            , progress
+            , div [ class "wrong" ]
+                [ text
+                    (if model.wrong then
+                        "NOPE"
+                     else
+                        ""
+                    )
+                ]
+            ]
+         else if model.inCountdown then
+            [ div [ class "countdown" ] [ text (toString model.countdown) ] ]
+         else
+            [ button [ onClick StartGame ] [ text "Start game" ]
+            , score model.score
+
+            -- , debugMessages model.debugMessage
+            ]
+        )

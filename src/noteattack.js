@@ -1,6 +1,7 @@
 import midiHandler from './midiHandler';
 import initSynth from './synth';
 import initAudio from './audio';
+import createGame, {showNote} from './game';
 
 let context;
 
@@ -35,11 +36,24 @@ const init = actions => {
   context = new AudioContext();
   const engine = {
     context,
+    game: {},
   };
 
   initAudio(engine);
   initSynth(engine, actions);
   initMidi(actions);
+
+  document.addEventListener('keydown', e => {
+    const keyName = e.key;
+    console.log(keyName);
+    actions.keyEvent('keydown', keyName);
+  });
+
+  actions.newGame = () => {
+    engine.game = createGame();
+    const index = 0;
+    showNote(actions, engine.game.notes, index);
+  };
 };
 
 export default init;

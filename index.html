@@ -7,14 +7,59 @@
     <!-- <link rel="stylesheet" href="style.css"> -->
     <style type="text/css">
     body {
-      font-size: 24px;
+      font-size: 10vw;
       background: black;
       color: yellow;
+    }
+    button {
+      font-size: 2rem;
+      background: black;
+      color: white;
+      border: 1px solid yellow;
+      padding: 1em;
     }
     .debug-messages {
       position: fixed;
       bottom: 1em;
       left: 1em;
+    }
+    .shown-note {
+      font-size: 50vw;
+    }
+    .countdown {
+      font-size: 40vw;
+    }
+    .wrong {
+      position: fixed;
+      top: 15px;
+      left: 20vw;
+      color: red;
+    }
+    .score {
+      position: fixed;
+      font-size: 80%;
+      right: 10px;
+      top: 10px;
+    }
+    .progress-container {
+      position: fixed;
+      bottom: 15px;
+      width: 50vw;
+      left: 25vw;
+      height: 30px;
+    }
+    .progress {
+      width: 50vw;
+      height: 30px;
+      background: black;
+      box-shadow: 1px 1px 5px 5px yellow;
+    }
+    .progress-inner {
+      position: relative;
+      top: -30px;
+      width: 0;
+      height: 30px;
+      background: yellow;
     }
     </style>
 </head>

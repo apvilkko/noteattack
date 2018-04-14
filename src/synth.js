@@ -1,10 +1,6 @@
-const POLYPHONY = 8;
+import {midiToFreq} from './convert';
 
-const midiToFreq = m => {
-  const tuning = 440;
-  return m === 0 || (m > 0 && m < 128) ?
-    Math.pow(2, (m - 69) / 12) * tuning : null;
-};
+const POLYPHONY = 8;
 
 const vco = engine => {
   const oscillator = engine.context.createOscillator();
