@@ -1,5 +1,7 @@
 # noteattack
 
+http://aapee.kapsi.fi/noteattack/
+
 Reaction game using Web MIDI API (Chrome only) and Elm. Done during the Gofore Hagaton 2018.
 
 You need a midi input device to play notes/chords.
