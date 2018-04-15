@@ -9,12 +9,12 @@ const midiHandler = actions => e => {
   const [command, note, velocity] = e.data;
   switch (command) {
     case NOTE_ON:
-      actions.debug(`note on ${note} ${midiToNote(note)} ${velocity}`);
+      // actions.debug(`note on ${note} ${midiToNote(note)} ${velocity}`);
       actions.notePressed({note, scaleNote: midiToNote(note)});
       actions.noteOn(note, velocity);
       break;
     case NOTE_OFF:
-      actions.debug(`note off ${note} ${midiToNote(note)} ${velocity}`);
+      // actions.debug(`note off ${note} ${midiToNote(note)} ${velocity}`);
       actions.noteOff(note, velocity);
       break;
     default:

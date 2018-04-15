@@ -244,6 +244,6 @@ view model =
             , button [ onClick (StartGame "chord") ] [ text "Start game (chord)" ]
             , score model.score
 
-            -- , debugMessages model.debugMessage
+            , debugMessages model.debugMessage
             ]
         )
